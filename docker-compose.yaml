@@ -1,0 +1,11 @@
+services:
+  db:
+    container_name: translateAppDb
+    image: mysql:9.0.1
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+    volumes:
+      - /Users/guillermo/Documents/Docker/translateAppDbVolume:/var/lib/mysql
+    ports:
+      - 3306:3306
+    restart: always
