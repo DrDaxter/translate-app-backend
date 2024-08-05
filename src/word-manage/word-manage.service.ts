@@ -94,7 +94,17 @@ export class WordManageService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} wordManage`;
+  async remove(id: number) {
+    const word = await this.findOne(id);
+    const queryBuilder = this.dataSource.createQueryBuilder();
+
+    await queryBuilder.delete()
+      .from(WordDefinition)
+      .where("word_id = :id",{id:id})
+      .execute();
+
+    await this.wordRepository.remove(word);
+
+    return "Success";
   }
 }

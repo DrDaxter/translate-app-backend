@@ -28,7 +28,7 @@ export class WordManageController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.wordManageService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.wordManageService.remove(id);
   }
 }
