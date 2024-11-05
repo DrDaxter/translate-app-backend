@@ -12,6 +12,9 @@ export class WordDefinition{
     @Column('text',{nullable: true})
     definition: string;
 
+    @Column('int',{nullable: false})
+    word_id: number;
+
     @OneToOne(
         () => WordManage,
         (word) => word.definition
@@ -20,5 +23,5 @@ export class WordDefinition{
         name: "word_id",
         referencedColumnName: "word_id"
     })
-    word_id: WordManage;
+    word: WordManage;
 }

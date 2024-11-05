@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WordManageController } from './word-manage.controller';
-import { WordManageService } from './word-manage.service';
+import { WordManageService } from './services/word-manage.service';
 
 describe('WordManageController', () => {
   let controller: WordManageController;

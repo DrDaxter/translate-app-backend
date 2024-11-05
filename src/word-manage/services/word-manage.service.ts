@@ -1,27 +1,24 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateWordManageDto } from './dto/create-word-manage.dto';
-import { UpdateWordManageDto } from './dto/update-word-manage.dto';
-import { WordManage } from './entities/word-manage.entity';
+import { CreateWordManageDto } from '../dto/create-word-manage.dto';
+import { UpdateWordManageDto } from '../dto/update-word-manage.dto';
+import { WordManage } from '../entities/word-manage.entity';
 import { DataSource, Repository } from 'typeorm';
-import { WordDefinition } from './entities/word-definition.entity';
+import { WordDefinition } from '../entities/word-definition.entity';
 
 @Injectable()
 export class WordManageService {
   constructor(
     @InjectRepository(WordManage)
     private readonly wordRepository: Repository<WordManage>,
-    @InjectRepository(WordDefinition)
-    private readonly wordDefRepository: Repository<WordDefinition>,
     private readonly dataSource: DataSource
   ){}
 
-  async create(createWordManageDto: CreateWordManageDto) {
-    const {definition = "no definition", ...wordData} = createWordManageDto;
+  async create(wordManage: CreateWordManageDto) {
     try {
       const word = await this.wordRepository.create({
-        ...wordData,
-        definition: this.wordDefRepository.create({definition: definition})
+        ...wordManage,
+        exist_definition: 0
       });
       
       await this.wordRepository.save(word);
@@ -62,7 +59,7 @@ export class WordManageService {
   }
 
   async update(id: number, updateWordManageDto: UpdateWordManageDto) {
-    const {definition, ...wordData} = updateWordManageDto;
+    const {...wordData} = updateWordManageDto;
 
     const word = await this.wordRepository.preload({
       word_id: id,
@@ -76,10 +73,6 @@ export class WordManageService {
     await queryRunner.startTransaction();
 
     try {
-      if(definition){
-        await queryRunner.manager.delete(WordDefinition, {word_id:{word_id: id}});
-        word.definition = this.wordDefRepository.create({definition: definition});
-      }
       await queryRunner.manager.save(word);
       await queryRunner.commitTransaction();
       await queryRunner.release();
@@ -106,5 +99,18 @@ export class WordManageService {
     await this.wordRepository.remove(word);
 
     return "Success";
+  }
+
+  async getWordsByBookId(bookId: number){
+    const queryBuilder = this.wordRepository.createQueryBuilder('word');
+
+    const words = await queryBuilder
+      .where("book_id =:book_id",{
+        book_id: bookId
+      }).getMany()
+
+    if(words.length === 0) throw new NotFoundException("book with doesn't have words")
+
+    return words
   }
 }

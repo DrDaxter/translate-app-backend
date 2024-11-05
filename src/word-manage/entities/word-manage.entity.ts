@@ -1,5 +1,6 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { WordDefinition } from "./word-definition.entity";
+import { BookManage } from "src/book-manage/entities/book-manage.entity";
 
 @Entity({
     name: 'Word',
@@ -15,9 +16,23 @@ export class WordManage {
     @Column('bool',{nullable:true})
     exist_definition: number;
 
+    @Column('int', {nullable: false})
+    book_id: number;
+
+    //relations
+    @ManyToOne(
+        () => BookManage,
+        (book) => book.word
+    )
+    @JoinColumn({
+        name: 'book_id',
+        referencedColumnName: 'book_id'
+    })
+    book: BookManage;
+
     @OneToOne(
         () => WordDefinition,
-        (wordDefinition) => wordDefinition.word_id,
+        (wordDefinition) => wordDefinition.word,
         {
             cascade: true,
             eager: true

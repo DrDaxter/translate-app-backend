@@ -1,5 +1,5 @@
 services:
-  db:
+  mysqlDb:
     container_name: translateAppDb
     image: mysql:9.0.1
     environment:
@@ -9,3 +9,26 @@ services:
     ports:
       - 3306:3306
     restart: always
+    networks:
+      - default-main-network
+
+  translateBackend:
+    depends_on:
+      - mysqlDb
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: translate-app-backend
+    container_name: translateAppBackend
+    restart: always
+    ports:
+      - 3000:3000
+    env_file:
+      - ./.env
+    networks:
+      - default-main-network
+
+networks:
+  default-main-network:
+    name: main-network
+    driver: bridge
